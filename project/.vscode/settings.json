@@ -1,5 +1,4 @@
 {
-  // reference: https://code.visualstudio.com/docs/other/unity
   "editor.formatOnSave": true,
   "files.autoSave": "afterDelay",
   "files.autoSaveDelay": 1000,
