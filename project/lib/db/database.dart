@@ -87,6 +87,14 @@ class DatabaseHelper {
     return await db!.query(table);
   }
 
+  ///データの取得
+  ///
+  ///[id] 取得するデータのID
+  Future<List<Map<String, dynamic>>> get(int id) async {
+    Database? db = await instance.database;
+    return await db!.rawQuery('SELECT * FROM $table WHERE $columnId = $id');
+  }
+
   ///テーブルに対してSELECTの実行
   ///
   ///[column] 列の名前
