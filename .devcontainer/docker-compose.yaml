@@ -1,0 +1,9 @@
+version: '3'
+services:
+  flutter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/home/user/flutter
+    tty: true
