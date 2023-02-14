@@ -1,7 +1,10 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
@@ -43,21 +46,42 @@ class DatabaseHelper {
 
   // データベース接続
   _initDatabase() async {
-    // アプリケーションのドキュメントディレクトリのパスを取得
-    Directory documentsDirectory = await getApplicationDocumentsDirectory();
-    // 取得パスを基に、データベースのパスを生成
-    String path = join(documentsDirectory.path, _databaseName);
-    // データベース接続
-    return await openDatabase(path,
+    if (kIsWeb) {
+      String path = _databaseName;
+      //Directory(path).create();
+      var factory = databaseFactoryFfiWeb;
+      final options = OpenDatabaseOptions(
         version: _databaseVersion,
-        // テーブル作成メソッドの呼び出し
-        onCreate: _onCreate);
+        onCreate: (db, version) => _onCreate(db, version),
+      );
+      return await factory.openDatabase(path, options: options);
+    } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
+      String path = join(Directory.current.path, "resource");
+      Directory(path).create();
+      var factory = databaseFactoryFfi;
+      final options = OpenDatabaseOptions(
+        version: _databaseVersion,
+        onCreate: (db, version) => _onCreate(db, version),
+      );
+      return await factory.openDatabase(path + _databaseName, options: options);
+    } else {
+      // アプリケーションのドキュメントディレクトリのパスを取得
+      Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      // 取得パスを基に、データベースのパスを生成
+      String path = join(documentsDirectory.path, _databaseName);
+      // データベース接続
+      return await openDatabase(
+        path,
+        version: _databaseVersion,
+        onCreate: (db, version) => _onCreate(db, version),
+      );
+    }
   }
 
   /// テーブル作成
-  /// 
+  ///
   /// [db] データベース
-  /// 
+  ///
   /// [version] スキーマーのversion （スキーマーのバージョンはテーブル変更時にバージョンを上げる（テーブル・カラム追加・変更・削除など））
   Future _onCreate(Database db, int version) async {
     await db.execute('''

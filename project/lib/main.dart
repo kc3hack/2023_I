@@ -1,115 +1,119 @@
-import 'package:flutter/material.dart';
+import 'dart:math';
 
-void main() {
-  runApp(const MyApp());
-}
+import 'package:flutter/material.dart';
+import 'package:project/db/database.dart';
+import 'package:logger/logger.dart';
+
+final logger = Logger();
+
+void main() => runApp(const MyApp());
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class MyHomePage extends StatelessWidget {
+  // DatabaseHelper クラスのインスタンス取得
+  final dbHelper = DatabaseHelper.instance;
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
+  MyHomePage({super.key});
 
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
+  // homepage layout
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('SQLiteデモ'),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            ElevatedButton(
+              onPressed: _insert,
+              child: const Text(
+                '登録',
+                style: TextStyle(fontSize: 28),
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            ElevatedButton(
+              onPressed: _query,
+              child: const Text(
+                '照会',
+                style: TextStyle(fontSize: 28),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: _update,
+              child: const Text(
+                '更新',
+                style: TextStyle(fontSize: 28),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: _delete,
+              child: const Text(
+                '削除',
+                style: TextStyle(fontSize: 28),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  // 登録ボタンクリック
+  void _insert() async {
+    // row to insert
+    const List<String> cat = ['肉.豚', '肉.牛', '魚', '野菜', '果物'];
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnCategory: cat[Random().nextInt(5)],
+      DatabaseHelper.columnName: '豚バラ',
+      DatabaseHelper.columnPurchase: '20230214',
+      DatabaseHelper.columnLimit: '20230218',
+      DatabaseHelper.columnPhotoPath: 'Path/To/Photo.jpg',
+      DatabaseHelper.columnMemo: '残り半分',
+    };
+    final id = await dbHelper.insert(row);
+    logger.d('登録しました。id: $id');
+  }
+
+  // 照会ボタンクリック
+  void _query() async {
+    final allRows = await dbHelper.getCategory(); //登録されているカテゴリ一覧を取得
+    //final allRows = await dbHelper.where('categoly LIKE \'肉.豚\'');//カテゴリが肉.豚の物を取得
+    //final allRows = await dbHelper.where('categoly LIKE \'肉.%\'');//カテゴリが肉の物を取得
+    //final allRows = await dbHelper.where('_id = 3');//ID=3を取得
+    logger.d('全てのデータを照会しました。');
+    logger.d(allRows);
+  }
+
+  // 更新ボタンクリック
+  void _update() async {
+    Map<String, dynamic> row = {
+      DatabaseHelper.columnId: 1, //更新するデータのID
+      DatabaseHelper.columnCategory: '肉.豚',
+      DatabaseHelper.columnName: '豚こま切れ',
+      DatabaseHelper.columnPurchase: '20230214',
+      DatabaseHelper.columnLimit: '20230218',
+      DatabaseHelper.columnPhotoPath: 'Path/To/Photo.jpg',
+      DatabaseHelper.columnMemo: '残り半分',
+    };
+    final rowsAffected = await dbHelper.update(row);
+    logger.d('更新しました。 ID：$rowsAffected ');
+  }
+
+  // 削除ボタンクリック
+  void _delete() async {
+    final id = await dbHelper.queryRowCount();
+    final rowsDeleted = await dbHelper.delete(id!); //削除するデータのID
+    logger.d('削除しました。 $rowsDeleted ID: $id');
   }
 }
