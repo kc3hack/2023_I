@@ -201,4 +201,16 @@ class DatabaseHelper {
     await saveFile.writeAsBytes(await fileImage.readAsBytes());
     return path;
   }
+
+  ///画像を取得する
+  ///
+  /// [path] 画像へのパス
+  ///
+  /// return pathが""の場合はnull、それ以外は保存された画像
+  Future<File?> getImage(String path) async {
+    if (path == "") {
+      return null;
+    }
+    return File(path);
+  }
 }
