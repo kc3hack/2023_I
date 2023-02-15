@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
@@ -13,7 +14,72 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: CatalogPage(),
+    );
+  }
+}
+
+class CatalogPage extends StatelessWidget {
+  // DatabaseHelper クラスのインスタンス取得
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<String>>(
+      future: dbHelper.getCategory(),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          // 全てのカテゴリを取得
+          final catalog = snapshot.data!;
+          var category = <String>[]; // 一番大きな分類 ex) 肉、魚
+          Map<String, List<String>> itemsByCategory = {};
+
+          for (String categoryPath in catalog) {
+            String categoryName = categoryPath.split(".")[0];
+            if (!category.contains(categoryName)) {
+              category.add(categoryName);
+              itemsByCategory[categoryName] = [];
+            }
+            itemsByCategory[categoryName]!.add(categoryPath);
+          }
+
+          List<Widget> expansionTiles = category.map((categoryName) {
+            return ExpansionTile(
+              title: Text(categoryName),
+              children: itemsByCategory[categoryName]!.map((path) {
+                return ListTile(
+                  title: Text(path),
+                );
+              }).toList(),
+            );
+          }).toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('一覧'),
+            ),
+            body: ListView(children: expansionTiles),
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                );
+              },
+              tooltip: 'Increment',
+              child: const Icon(Icons.add),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
     );
   }
 }
@@ -30,6 +96,12 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SQLiteデモ'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: Center(
         child: Row(
