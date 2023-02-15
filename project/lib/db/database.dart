@@ -9,6 +9,7 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static const _databaseName = "DataBase.db"; // DB名
+  static String _path = "";
   static const _databaseVersion = 1; // スキーマのバージョン指定
 
   static const table = 'data_table'; // テーブル名
@@ -56,7 +57,8 @@ class DatabaseHelper {
       );
       return await factory.openDatabase(path, options: options);
     } else if (Platform.isLinux || Platform.isMacOS || Platform.isWindows) {
-      String path = join(Directory.current.path, "resource");
+      _path = Directory.current.path;
+      String path = join(_path, "resource");
       Directory(path).create();
       var factory = databaseFactoryFfi;
       final options = OpenDatabaseOptions(
@@ -67,8 +69,9 @@ class DatabaseHelper {
     } else {
       // アプリケーションのドキュメントディレクトリのパスを取得
       Directory documentsDirectory = await getApplicationDocumentsDirectory();
+      _path = documentsDirectory.path;
       // 取得パスを基に、データベースのパスを生成
-      String path = join(documentsDirectory.path, _databaseName);
+      String path = join(_path, _databaseName);
       // データベース接続
       return await openDatabase(
         path,
@@ -179,5 +182,23 @@ class DatabaseHelper {
       }
     }
     return list;
+  }
+
+  ///画像を保存する
+  ///
+  /// [fileImage] 保存する画像ファイル
+  ///
+  /// return      fileImageがnullの場合は""、それ以外は画像へのパス
+  Future<String> saveImage(File? fileImage) async {
+    if (fileImage == null) {
+      return "";
+    }
+    String path = '$_path/Images';
+    Directory(path).create();
+    path = join(_path, DateTime.now().toString());
+    path += ".png";
+    File saveFile = File(path);
+    await saveFile.writeAsBytes(await fileImage.readAsBytes());
+    return path;
   }
 }
