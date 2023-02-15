@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
+import 'package:project/main.dart';
 
 final logger = Logger();
 
-void main() => runApp(const MyApp());
+void main() => runApp(const CatalogPage());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class CatalogPage extends StatelessWidget {
+  const CatalogPage({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -50,6 +52,11 @@ class MyHomePage extends StatelessWidget {
             return const Text("else");
           }
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/register'),
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }

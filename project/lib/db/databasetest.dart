@@ -1,15 +1,16 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 
 final logger = Logger();
 
-void main() => runApp(const MyApp());
+void main() => runApp(const DataBaseTestPage());
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class DataBaseTestPage extends StatelessWidget {
+  const DataBaseTestPage({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -66,6 +67,11 @@ class MyHomePage extends StatelessWidget {
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.go('/'),
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
   }
 
@@ -87,7 +93,7 @@ class MyHomePage extends StatelessWidget {
 
   // 照会ボタンクリック
   void _query() async {
-    final allRows = await dbHelper.getCategory();//登録されているカテゴリ一覧を取得
+    final allRows = await dbHelper.getCategory(); //登録されているカテゴリ一覧を取得
     //final allRows = await dbHelper.where('categoly LIKE \'肉.豚\'');//カテゴリが肉.豚の物を取得
     //final allRows = await dbHelper.where('categoly LIKE \'肉.%\'');//カテゴリが肉の物を取得
     //final allRows = await dbHelper.where('_id = 3');//ID=3を取得
