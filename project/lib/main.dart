@@ -31,17 +31,24 @@ class CatalogPage extends StatelessWidget {
         if (snapshot.hasData) {
           // 全てのカテゴリを取得
           final catalog = snapshot.data!;
-          print(catalog);
           var category = <String>[]; // 一番大きな分類 ex) 肉、魚
+          List<List<String>> splitedList = [];
           Map<String, List<String>> itemsByCategory = {};
-
+          int i = 0;
           for (var maps in catalog) {
-            category.add(maps['category'].split(".")[0]);
-            itemsByCategory[maps['category'].split(".")[0]] ??= []; // Listの初期化
-            itemsByCategory[maps['category'].split(".")[0]]!.add(maps['name']);
+            splitedList.add(maps['category'].split("."));
+            splitedList[i].add(maps['name']);
+            itemsByCategory[splitedList[i][0]] ??= []; // Listの初期化
+            itemsByCategory[splitedList[i][0]]!.add(splitedList[i][1]);
+            i++;
           }
 
-          List<Widget> expansionTiles = category.toSet().map((categoryName) {
+          List<String> expansionCategories = [];
+          for (int i = 0; i < splitedList.length; i++) {
+            expansionCategories.add(splitedList[i][0]);
+          }
+          List<Widget> expansionTiles =
+              expansionCategories.toSet().map((categoryName) {
             return ExpansionTile(
               title: Text(categoryName),
               children: itemsByCategory[categoryName]!.map((path) {
