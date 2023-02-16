@@ -25,25 +25,23 @@ class CatalogPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<String>>(
-      future: dbHelper.getCategory(),
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: dbHelper.select('category, name, limit_date'),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           // 全てのカテゴリを取得
           final catalog = snapshot.data!;
+          print(catalog);
           var category = <String>[]; // 一番大きな分類 ex) 肉、魚
           Map<String, List<String>> itemsByCategory = {};
 
-          for (String categoryPath in catalog) {
-            String categoryName = categoryPath.split(".")[0];
-            if (!category.contains(categoryName)) {
-              category.add(categoryName);
-              itemsByCategory[categoryName] = [];
-            }
-            itemsByCategory[categoryName]!.add(categoryPath);
+          for (var maps in catalog) {
+            category.add(maps['category'].split(".")[0]);
+            itemsByCategory[maps['category'].split(".")[0]] ??= []; // Listの初期化
+            itemsByCategory[maps['category'].split(".")[0]]!.add(maps['name']);
           }
 
-          List<Widget> expansionTiles = category.map((categoryName) {
+          List<Widget> expansionTiles = category.toSet().map((categoryName) {
             return ExpansionTile(
               title: Text(categoryName),
               children: itemsByCategory[categoryName]!.map((path) {
