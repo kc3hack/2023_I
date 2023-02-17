@@ -33,33 +33,21 @@ class CatalogPage extends StatelessWidget {
           List<String> mainCategory = [];
           List<String> ingredients = [];
           List<String> limitDate = [];
+          Map<String, List<String>> itemsByCategory = {};
 
           for (var maps in catalog) {
-            mainCategory.add(maps['category']);
-            ingredients.add(maps['name']);
             limitDate.add(maps['limit_date']);
+            itemsByCategory[maps['category']] ??= []; // Listの初期化
+            itemsByCategory[maps['category']]!.add(maps['name']);
           }
 
           List<Widget> expansionTiles =
-              mainCategory.toSet().map((categoryName) {
+              itemsByCategory.keys.toList().map((categoryName) {
             return ExpansionTile(
               title: Text(categoryName),
-              children: ingredients.map((path) {
-                return GestureDetector(
-                  onTap: () {
-                    // 詳細画面に遷移？ （未実装）
-
-                    // testcode
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (context) => AlertDialog(
-                    //     content: Text('test'),
-                    //   ),
-                    // );
-                  },
-                  child: ListTile(
-                    title: Text(path),
-                  ),
+              children: itemsByCategory[categoryName]!.map((itemName) {
+                return ListTile(
+                  title: Text(itemName),
                 );
               }).toList(),
             );
