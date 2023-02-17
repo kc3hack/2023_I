@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:path/path.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 
@@ -31,9 +32,9 @@ class CatalogPage extends StatelessWidget {
         if (snapshot.hasData) {
           // 全てのカテゴリを取得
           final catalog = snapshot.data!;
-          var category = <String>[]; // 一番大きな分類 ex) 肉、魚
           List<List<String>> splitedList = [];
           Map<String, List<String>> itemsByCategory = {};
+
           int i = 0;
           for (var maps in catalog) {
             splitedList.add(maps['category'].split("."));
@@ -43,21 +44,69 @@ class CatalogPage extends StatelessWidget {
             i++;
           }
 
-          List<String> expansionCategories = [];
-          for (int i = 0; i < splitedList.length; i++) {
-            expansionCategories.add(splitedList[i][0]);
-          }
-          List<Widget> expansionTiles =
-              expansionCategories.toSet().map((categoryName) {
-            return ExpansionTile(
-              title: Text(categoryName),
-              children: itemsByCategory[categoryName]!.map((path) {
-                return ListTile(
-                  title: Text(path),
-                );
-              }).toList(),
+          List<Widget> expansionTiles = [];
+
+          print(splitedList);
+
+          List<List<dynamic>> transposedList;
+          if (splitedList.any((list) => list is List)) {
+            transposedList = List.generate(
+              splitedList.fold(
+                  0, (maxValue, list) => max(maxValue, list.length)),
+              (i) => List.generate(splitedList.length,
+                  (j) => splitedList[j].length > i ? splitedList[j][i] : null),
             );
-          }).toList();
+          } else {
+            transposedList = [splitedList];
+          }
+
+          print(transposedList);
+
+          // nullを消去
+          List<List<dynamic>> transposedFilteredList = transposedList
+              .map((list) => list.where((item) => item != null).toList())
+              .toList();
+
+          print(transposedFilteredList);
+
+          for (int i = 0; i < transposedList.length - 1; i++) {
+            expansionTiles = transposedList[i].toSet().map((categoryName) {
+              return ExpansionTile(
+                title: Text(categoryName == null ? "" : categoryName),
+                children: transposedList[i + 1].toSet().map((path) {
+                  return ListTile(
+                    title: Text(path == null ? "" : path),
+                  );
+                }).toList(),
+              );
+            }).toList();
+          }
+
+          // for (int i = 0; i < splitedList.length; i++) {
+          //   for (int j = 0; j < splitedList[i].length - 1; j++) {
+          //     expansionTiles = transposedList[i].toSet().map((categoryName) {
+          //       return ExpansionTile(
+          //         title: Text(categoryName),
+          //         children: transposedList[i + 1].toSet().map((path) {
+          //           if (j < splitedList[i].length - 2) {
+          //             return ExpansionTile(
+          //               title: Text(path),
+          //               children: [
+          //                 ListTile(
+          //                   title: Text(splitedList[i][j + 2]),
+          //                 ),
+          //               ],
+          //             );
+          //           } else {
+          //             return ListTile(
+          //               title: Text(path),
+          //             );
+          //           }
+          //         }).toList(),
+          //       );
+          //     }).toList();
+          //   }
+          // }
 
           return Scaffold(
             appBar: AppBar(
@@ -87,6 +136,91 @@ class CatalogPage extends StatelessWidget {
       },
     );
   }
+
+  // Widget createTile(List<List<String>> transposedList, int i) {
+  //   if (transposedList == null) return const SizedBox.shrink();
+
+  //   int n = transposedList.length;
+  //   int m = n > 0 ? transposedList[i].length : 0;
+  //   List<Widget> expansionTiles = [];
+
+  //   if (n <= 0 || m <= 0) return const SizedBox.shrink();
+
+  //   if (m >= 3 && transposedList.any((row) => row[m-2] == null && row[m-1] == null)) {
+  //     expansionTiles = transposedList[i].toSet().map((categoryName) {
+  //       return ExpansionTile(
+  //         title: Text(categoryName),
+  //         children: [
+  //           ListView.builder(
+  //             itemCount: m,
+  //             itemBuilder: (BuildContext context, int index) {
+  //               return ListTile(
+  //                 title:  Text (transposedList[i][index]),
+  //               );
+  //             },
+  //             ),
+  //         ],
+  //         );
+  //     } else {
+  //       expansionTiles = transposedList[i].toSet().map(categoryName) {
+  //         return ExpansionTile(
+  //           title: Text(categoryName),
+  //           children: List.generate(n, (m) {
+  //             return createTile(transposedList, i+1);
+  //           }),
+  //         );
+  //       }
+  //     }
+  //     )
+
+  //   }
+  // }
+
+  // List<Widget> createTile(List<List<dynamic>> transposedList, int i) {
+  //   List<Widget> expansionTiles = [];
+  //   if (transposedList == null) {
+  //     return expansionTiles;
+  //   }
+
+  //   int n = transposedList.length;
+  //   int m = n > 0 ? transposedList[i].length - i : 0;
+
+  //   if (n <= 0 || m <= 0) {
+  //     return expansionTiles;
+  //   }
+
+  //   if (m >= 3 &&
+  //       transposedList.any((row) => row[m - 2] == null && row[m - 1] == null)) {
+  //     expansionTiles = transposedList[i].toSet().map((categoryName) {
+  //       return ExpansionTile(
+  //         title: Text(categoryName),
+  //         children: [
+  //           ListView.builder(
+  //             itemCount: m,
+  //             itemBuilder: (BuildContext context, int index) {
+  //               return ListTile(
+  //                 title: Text(transposedList[i][index]),
+  //               );
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     }).toList();
+  //   } else {
+  //     expansionTiles = transposedList[i].toSet().map((categoryName) {
+  //       return ExpansionTile(
+  //         title: Text(categoryName),
+  //         children: List.generate(n, (j) {
+  //           return createTile(transposedList, i + 1);
+  //         }),
+  //       );
+  //     }).toList();
+  //   }
+
+  //   return Column(
+  //     children: expansionTiles,
+  //   );
+  // }
 }
 
 class MyHomePage extends StatelessWidget {
