@@ -46,8 +46,21 @@ class CatalogPage extends StatelessWidget {
             return ExpansionTile(
               title: Text(categoryName),
               children: itemsByCategory[categoryName]!.map((itemName) {
-                return ListTile(
-                  title: Text(itemName),
+                return GestureDetector(
+                  onTap: () {
+                    // 詳細画面に遷移？ （未実装）
+
+                    // testcode
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (context) => AlertDialog(
+                    //     content: Text('test'),
+                    //   ),
+                    // );
+                  },
+                  child: ListTile(
+                    title: Text(itemName),
+                  ),
                 );
               }).toList(),
             );
