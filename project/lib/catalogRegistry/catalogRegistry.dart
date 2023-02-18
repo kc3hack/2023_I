@@ -166,7 +166,7 @@ class _MyHomePageState extends State<CatalogCreate> {
                         color: Colors.blue,
                       ),
                     ),
-                    hintText: ' 例) 2023/3/5',
+                    hintText: ' 例) 2023年3月5日 → 202335',
                   ),
                   //入力した購入日を格納
                   onChanged: (text) {
@@ -197,7 +197,7 @@ class _MyHomePageState extends State<CatalogCreate> {
                         color: Colors.blue,
                       ),
                     ),
-                    hintText: ' 例) 2023/5/20',
+                    hintText: ' 例) 2023年5月20日 → 2023520',
                   ),
                   //入力した期限を格納
                   onChanged: (text) {
