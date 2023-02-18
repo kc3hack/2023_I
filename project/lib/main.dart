@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
+import 'package:provider/provider.dart';
 
 final logger = Logger();
 
@@ -19,7 +20,12 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class CatalogPage extends StatelessWidget {
+class CatalogPage extends StatefulWidget {
+  @override
+  _CatalogPageState createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
   // DatabaseHelper クラスのインスタンス取得
   final dbHelper = DatabaseHelper.instance;
 
@@ -30,15 +36,13 @@ class CatalogPage extends StatelessWidget {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final catalog = snapshot.data!; // category, name, limit_dateの全データ
-          List<String> mainCategory = [];
-          List<String> ingredients = [];
           List<String> limitDate = [];
-          Map<String, List<String>> itemsByCategory = {};
+          Map<String, List<String>> itemsByCategory = {}; // key: メインカテゴリ, value: 商品名
 
-          for (var maps in catalog) {
-            limitDate.add(maps['limit_date']);
-            itemsByCategory[maps['category']] ??= []; // Listの初期化
-            itemsByCategory[maps['category']]!.add(maps['name']);
+          for (var map in catalog) {
+            limitDate.add(map['limit_date']);
+            itemsByCategory[map['category']] ??= []; // Listの初期化
+            itemsByCategory[map['category']]!.add(map['name']);
           }
 
           List<Widget> expansionTiles =
@@ -71,6 +75,7 @@ class CatalogPage extends StatelessWidget {
               title: const Text('一覧'),
             ),
             body: ListView(children: expansionTiles),
+            // 右下の＋ボタンで登録画面に遷移
             floatingActionButton: FloatingActionButton(
               onPressed: () {
                 Navigator.push(
@@ -111,7 +116,10 @@ class MyHomePage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => CatalogPage()),
+            );
           },
         ),
       ),
