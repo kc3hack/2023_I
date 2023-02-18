@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
-import 'package:project/screens/catalog.dart';
-import 'package:project/screens/edit.dart';
+//import 'package:provider/provider.dart';
 //import 'package:project/screens/registry.dart';
+import 'package:project/screens/edit.dart';
 
 final logger = Logger();
 
@@ -16,7 +17,92 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyHomePage(),
+      home: CatalogPage(),
+    );
+  }
+}
+
+class CatalogPage extends StatefulWidget {
+  @override
+  _CatalogPageState createState() => _CatalogPageState();
+}
+
+class _CatalogPageState extends State<CatalogPage> {
+  // DatabaseHelper クラスのインスタンス取得
+  final dbHelper = DatabaseHelper.instance;
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: dbHelper.select('category, name, limit_date'),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final catalog = snapshot.data!; // category, name, limit_dateの全データ
+          List<String> limitDate = [];
+          Map<String, List<String>> itemsByCategory =
+              {}; // key: メインカテゴリ, value: 商品名
+
+          for (var map in catalog) {
+            limitDate.add(map['limit_date']);
+            itemsByCategory[map['category']] ??= []; // Listの初期化
+            itemsByCategory[map['category']]!.add(map['name']);
+          }
+
+          List<Widget> expansionTiles =
+              itemsByCategory.keys.toList().map((categoryName) {
+            return ExpansionTile(
+              title: Text(categoryName),
+              children: itemsByCategory[categoryName]!.map((itemName) {
+                return GestureDetector(
+                  onTap: () {
+                    // 詳細画面に遷移？ （未実装）
+                    // testcode
+                    // showDialog(
+                    //   context: context,
+                    //   builder: (context) => AlertDialog(
+                    //     content: Text('test'),
+                    //   ),
+                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditPage()),
+                    );
+                  },
+                  child: ListTile(
+                    title: Text(itemName),
+                  ),
+                );
+              }).toList(),
+            );
+          }).toList();
+
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('一覧'),
+            ),
+            body: ListView(children: expansionTiles),
+            // 右下の＋ボタンで登録画面に遷移
+            floatingActionButton: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => EditPage()),
+                );
+              },
+              tooltip: 'Increment',
+              child: const Icon(Icons.add),
+            ),
+          );
+        } else if (snapshot.hasError) {
+          return Center(
+            child: Text('Error: ${snapshot.error}'),
+          );
+        } else {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+      },
     );
   }
 }
@@ -33,62 +119,43 @@ class MyHomePage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('SQLiteデモ'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => CatalogPage()),
+            );
+          },
+        ),
       ),
       body: Center(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            //登録
             ElevatedButton(
-              onPressed: () {
-                _insert();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CatalogPage()),
-                );
-              },
+              onPressed: _insert,
               child: const Text(
                 '登録',
                 style: TextStyle(fontSize: 28),
               ),
             ),
-            //照会
             ElevatedButton(
-              onPressed: () {
-                _query();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CatalogPage()),
-                );
-              },
+              onPressed: _query,
               child: const Text(
                 '照会',
                 style: TextStyle(fontSize: 28),
               ),
             ),
-            //更新
             ElevatedButton(
-              onPressed: () {
-                _update();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CatalogPage()),
-                );
-              },
+              onPressed: _update,
               child: const Text(
                 '更新',
                 style: TextStyle(fontSize: 28),
               ),
             ),
-            //削除
             ElevatedButton(
-              onPressed: () {
-                _delete();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => CatalogPage()),
-                );
-              },
+              onPressed: _delete,
               child: const Text(
                 '削除',
                 style: TextStyle(fontSize: 28),

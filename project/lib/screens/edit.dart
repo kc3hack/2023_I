@@ -22,20 +22,17 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const CatalogCreate(title: 'image_picker'),
+      //home: EditPage(title: 'image_picker'),
     );
   }
 }
 
-class CatalogCreate extends StatefulWidget {
-  const CatalogCreate({super.key, required this.title});
-  final String title;
-
+class EditPage extends StatefulWidget {
   @override
-  State<CatalogCreate> createState() => _MyHomePageState();
+  _EditPageState createState() => _EditPageState();
 }
 
-class _MyHomePageState extends State<CatalogCreate> {
+class _EditPageState extends State<EditPage> {
   final dbHelper = DatabaseHelper.instance; //databaseインスタンスを作成
   final picker = ImagePicker(); //画像をギャラリーから取得するために使用
   File? _image; //画像を取得
@@ -78,7 +75,7 @@ class _MyHomePageState extends State<CatalogCreate> {
   Widget build(BuildContext context) {
     return Scaffold(
       //resizeToAvoidBottomInset: false,
-      appBar: AppBar(centerTitle: true, title: Text('登録画面')),
+      appBar: AppBar(centerTitle: true, title: Text('編集画面')),
       body: SingleChildScrollView(
         child: Container(
           //画面の上下左右に余白を設定
@@ -274,11 +271,17 @@ class _MyHomePageState extends State<CatalogCreate> {
                     ),
                     //登録ボタンの設定
                     ElevatedButton(
-                      child: Text('編集'),
+                      child: Text('登録'),
                       onPressed: () {
                         //データベースに情報を登録し、一覧画面に戻る
                         _insert();
                         Navigator.pop(context);
+                      },
+                    ),
+                    ElevatedButton(
+                      child: Text('削除'),
+                      onPressed: () {
+                        //データベースからデータを消す
                       },
                     ),
                   ],
