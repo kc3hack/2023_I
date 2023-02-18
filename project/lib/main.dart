@@ -84,15 +84,15 @@ class _CatalogPageState extends State<CatalogPage> {
                 // 期限間近の判定
                 if (dateDt.isAfter(limitDt)) {
                   // 期限切れの場合
-                  r = 255;
-                  g = 0;
-                  b = 0;
+                  r = 220;
+                  g = 20;
+                  b = 60;
                   opacity = 100;
-                } else if (dateDt.difference(limitDt).inDays <= 4) {
+                } else if (dateDt.difference(limitDt).inDays >= -4) {
                   // 期限まであと4日
-                  r = 245;
-                  g = 194;
-                  b = 59;
+                  r = 210;
+                  g = 105;
+                  b = 30;
                   opacity = 100;
                 } else {
                   r = 0;
