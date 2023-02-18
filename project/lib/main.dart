@@ -6,6 +6,7 @@ import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:project/catalogRegistry/catalogRegistry.dart';
 
 final logger = Logger();
 
@@ -49,7 +50,8 @@ class _CatalogPageState extends State<CatalogPage> {
         if (snapshot.hasData) {
           final catalog = snapshot.data!; // category, name, limit_dateの全データ
           List<String> limitDate = [];
-          Map<String, List<String>> itemsByCategory = {}; // key: メインカテゴリ, value: 商品名
+          Map<String, List<String>> itemsByCategory =
+              {}; // key: メインカテゴリ, value: 商品名
 
           for (var map in catalog) {
             limitDate.add(map['limit_date']);
@@ -134,7 +136,8 @@ class _CatalogPageState extends State<CatalogPage> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyHomePage()),
+                  MaterialPageRoute(
+                      builder: (context) => CatalogCreate(title: "title")),
                 );
               },
               tooltip: 'Increment',
