@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 final logger = Logger();
 
@@ -30,8 +31,18 @@ class _CatalogPageState extends State<CatalogPage> {
   final dbHelper = DatabaseHelper.instance;
   var limitDateIndex; // limitDateのインデックス
 
+  DateTime now = DateTime.now();
+  late String limitColor;
+
+  get danger => null; // 期限の警告表示色
+
   @override
   Widget build(BuildContext context) {
+    DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+    String date = outputFormat.format(now); // 今日の日付
+    int r, g, b;
+    double opacity;
+
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: dbHelper.select('category, name, limit_date'),
       builder: (context, snapshot) {
@@ -62,6 +73,32 @@ class _CatalogPageState extends State<CatalogPage> {
                   limitDateIndex++;
                 }
 
+                // 期限のフォーマット: xxxxxxxx -> yyyy/MM/dd
+                String limit = outputFormat
+                    .format(DateTime.parse(limitDate[limitDateIndex]));
+                var limitDt = DateTime.parse(limit);
+                var dateDt = DateTime.parse(date); // 今日の日付
+
+                // 期限間近の判定
+                if (dateDt.isAfter(limitDt)) {
+                  // 期限切れの場合
+                  r = 255;
+                  g = 0;
+                  b = 0;
+                  opacity = 100;
+                } else if (dateDt.difference(limitDt).inDays <= 4) {
+                  // 期限まであと4日
+                  r = 245;
+                  g = 194;
+                  b = 59;
+                  opacity = 100;
+                } else {
+                  r = 0;
+                  g = 0;
+                  b = 0;
+                  opacity = 100;
+                }
+
                 return GestureDetector(
                   onTap: () {
                     // 詳細画面に遷移？ （未実装）
@@ -76,8 +113,11 @@ class _CatalogPageState extends State<CatalogPage> {
                   },
                   child: ListTile(
                     isThreeLine: true,
-                    title: Text('\t$itemName'),
-                    subtitle: Text('\t期限：${limitDate[limitDateIndex]}'),
+                    title: Text(
+                      '\t$itemName',
+                      style: TextStyle(color: Color.fromRGBO(r, g, b, opacity)),
+                    ),
+                    subtitle: Text('\t期限：$limit'),
                   ),
                 );
               }).toList(),
