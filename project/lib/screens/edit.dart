@@ -274,7 +274,7 @@ class _MyHomePageState extends State<CatalogCreate> {
                     ),
                     //登録ボタンの設定
                     ElevatedButton(
-                      child: Text('登録'),
+                      child: Text('更新'),
                       onPressed: () {
                         //データベースに情報を登録し、一覧画面に戻る
                         _insert();
