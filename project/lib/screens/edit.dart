@@ -6,6 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 import 'package:project/main.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 final logger = Logger();
 //Controllerの定義
@@ -24,6 +27,19 @@ class CatalogPage extends StatelessWidget {
 }
 
 class MyApp extends StatelessWidget {
+  XFile? _image;
+  final picker = ImagePicker();
+
+  Future getImageFromGarally() async {
+    var imagePicker;
+    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+    setState(() {
+      if (pickedFile != null) {
+        _image = XFile(pickedFile.path);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,22 +50,26 @@ class MyApp extends StatelessWidget {
         width: double.infinity,
         child: Column(
           children: <Widget>[
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(hintText: 'カテゴリー'),
-            ),
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(hintText: '分類'),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextFormField(
+                autofocus: true,
+                decoration: InputDecoration(
+                    hintText: 'カテゴリを入力してください(必須)',
+                    labelText: 'カテゴリー',
+                    //fillColor: Colors.grey.shade200,
+                    border: OutlineInputBorder()),
+              ),
             ),
             Padding(
               padding: EdgeInsets.all(10),
-              child: TextField(
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'[0-9]')), //英小文字のみ許可
-                ],
-                decoration: InputDecoration(hintText: '購入日'),
+              child: TextFormField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: '分類',
+                  border: OutlineInputBorder(),
+                  labelText: '分類',
+                ),
               ),
             ),
             Padding(
@@ -59,20 +79,60 @@ class MyApp extends StatelessWidget {
                   FilteringTextInputFormatter.allow(
                       RegExp(r'[0-9]')), //英小文字のみ許可
                 ],
-                decoration: InputDecoration(hintText: '消費期限'),
+                decoration: InputDecoration(
+                    hintText: '購入日',
+                    labelText: '購入日',
+                    border: OutlineInputBorder()),
               ),
             ),
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(hintText: '写真'),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextField(
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(
+                      RegExp(r'[0-9]')), //英小文字のみ許可
+                ],
+                decoration: InputDecoration(
+                    hintText: '消費期限',
+                    border: OutlineInputBorder(),
+                    labelText: '消費期限'),
+              ),
             ),
-            TextField(
-              autofocus: true,
-              decoration: InputDecoration(hintText: 'その他メモ'),
+            SizedBox(
+              height: 5,
+            ),
+            Padding(
+              padding: EdgeInsets.all(10),
+              child: TextFormField(
+                autofocus: true,
+                decoration: InputDecoration(
+                  hintText: 'その他メモ',
+                  labelText: 'その他',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ),
+            SizedBox(
+              height: 5,
+            ),
+            ButtonBar(
+              alignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('戻る'),
+                ),
+                ElevatedButton(
+                  onPressed: () {},
+                  child: Text('編集'),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
+
+  void setState(Null Function() param0) {}
 }
