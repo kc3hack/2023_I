@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 
 final logger = Logger();
 
@@ -36,13 +37,17 @@ class _CatalogPageState extends State<CatalogPage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final catalog = snapshot.data!; // category, name, limit_dateの全データ
-          List<String> limitDate = [];
-          Map<String, List<String>> itemsByCategory = {}; // key: メインカテゴリ, value: 商品名
+          Map<String, List<List<String>>> itemsByCategory = {};
 
           for (var map in catalog) {
-            limitDate.add(map['limit_date']);
-            itemsByCategory[map['category']] ??= []; // Listの初期化
-            itemsByCategory[map['category']]!.add(map['name']);
+            List<String> itemlimit = [];
+            String category = map['category'];
+            String name = map['name'];
+            String date = map['limit_date'];
+            itemlimit.add(name);
+            itemlimit.add(date);
+            itemsByCategory[category] ??= [];
+            itemsByCategory[category]!.add(itemlimit);
           }
 
           List<Widget> expansionTiles =
@@ -63,7 +68,16 @@ class _CatalogPageState extends State<CatalogPage> {
                     // );
                   },
                   child: ListTile(
-                    title: Text(itemName),
+                    title: Text(itemName[0]),
+                    subtitle: Text(() {
+                      String limitDate = itemName[1];
+                      try {
+                        return DateFormat('yyyy/MM/dd')
+                            .format(DateTime.parse(limitDate));
+                      } catch (e) {
+                        return limitDate;
+                      }
+                    }()),
                   ),
                 );
               }).toList(),
@@ -116,6 +130,7 @@ class MyHomePage extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
+            // CatalogPageの状態をリセットし、新しいデータを取得
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => CatalogPage()),
