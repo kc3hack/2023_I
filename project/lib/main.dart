@@ -28,6 +28,7 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   // DatabaseHelper クラスのインスタンス取得
   final dbHelper = DatabaseHelper.instance;
+  var limitDateIndex; // limitDateのインデックス
 
   @override
   Widget build(BuildContext context) {
@@ -48,8 +49,19 @@ class _CatalogPageState extends State<CatalogPage> {
           List<Widget> expansionTiles =
               itemsByCategory.keys.toList().map((categoryName) {
             return ExpansionTile(
-              title: Text(categoryName),
+              collapsedBackgroundColor: Color.fromRGBO(220, 220, 220, 100),
+              title: Text(
+                categoryName,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               children: itemsByCategory[categoryName]!.map((itemName) {
+                // リストのインデックスを割り当てる
+                if (limitDateIndex == null) {
+                  limitDateIndex = 0;
+                } else {
+                  limitDateIndex++;
+                }
+
                 return GestureDetector(
                   onTap: () {
                     // 詳細画面に遷移？ （未実装）
@@ -63,7 +75,9 @@ class _CatalogPageState extends State<CatalogPage> {
                     // );
                   },
                   child: ListTile(
-                    title: Text(itemName),
+                    isThreeLine: true,
+                    title: Text('\t$itemName'),
+                    subtitle: Text('\t期限：${limitDate[limitDateIndex]}'),
                   ),
                 );
               }).toList(),
