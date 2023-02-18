@@ -1,41 +1,49 @@
-// ignore_for_file: prefer_const_constructors
-
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
-import 'package:project/db/database.dart';
-import 'package:logger/logger.dart';
-import 'package:project/main.dart';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:project/db/database.dart';
+import 'dart:async';
+import 'dart:io';
 
-final logger = Logger();
-//Controllerの定義
-final controller = TextEditingController();
+void main() {
+  runApp(const MyApp());
+}
 
-void main() => runApp(const CatalogPage());
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-class CatalogPage extends StatelessWidget {
-  const CatalogPage({super.key});
+  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: MyApp(),
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: const CatalogCreate(title: 'image_picker'),
     );
   }
 }
 
-class MyApp extends StatelessWidget {
-  XFile? _image;
-  final picker = ImagePicker();
+class CatalogCreate extends StatefulWidget {
+  const CatalogCreate({super.key, required this.title});
+  final String title;
 
-  Future getImageFromGarally() async {
-    var imagePicker;
-    final pickedFile = await imagePicker.pickImage(source: ImageSource.gallery);
+  @override
+  State<CatalogCreate> createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<CatalogCreate> {
+  final picker = ImagePicker();
+  File _image = File('');
+
+  Future _getImage() async {
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
     setState(() {
       if (pickedFile != null) {
-        _image = XFile(pickedFile.path);
+        _image = File(pickedFile.path);
+      } else {
+        print('No image selected.');
       }
     });
   }
@@ -43,96 +51,147 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('修正画面'),
-      ),
+      appBar: AppBar(centerTitle: true, title: Text('登録画面')),
       body: Container(
-        width: double.infinity,
+        //画面の上下左右に余白を設定
+        margin: EdgeInsets.all(20),
         child: Column(
           children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                autofocus: true,
-                decoration: InputDecoration(
-                    hintText: 'カテゴリを入力してください(必須)',
-                    labelText: 'カテゴリー',
-                    //fillColor: Colors.grey.shade200,
-                    border: OutlineInputBorder()),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: '分類',
-                  border: OutlineInputBorder(),
-                  labelText: '分類',
+            //カテゴリの設定
+            Container(
+              width: double.infinity,
+              child: Text(
+                'カテゴリ',
+                //textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextField(
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'[0-9]')), //英小文字のみ許可
+            TextField(
+              decoration: InputDecoration(
+                  //contentPadding: EdgeInsets.all(20),
+                  border: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Colors.blue,
+                    ),
+                  ),
+                  hintText: 'カテゴリを入力してください(必須)'),
+            ),
+            //商品名の設定
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              width: double.infinity,
+              child: Text(
+                '商品名',
+                //textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                //ontentPadding: EdgeInsets.all(20),
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                  ),
+                ),
+                hintText: '商品名を入力して下さい(必須)',
+              ),
+            ),
+            //消費期限の設定
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              width: double.infinity,
+              child: Text(
+                '消費期限',
+                //textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                //contentPadding: EdgeInsets.all(20),
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                  ),
+                ),
+                hintText: '消費期限を入力して下さい(必須)',
+              ),
+            ),
+            //量の設定
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              width: double.infinity,
+              child: Text(
+                '量',
+                //textAlign: TextAlign.left,
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+            TextField(
+              decoration: InputDecoration(
+                //contentPadding: EdgeInsets.all(20),
+                border: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Colors.blue,
+                  ),
+                ),
+                hintText: '量を入力して下さい(必須)',
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.only(top: 10),
+              width: double.infinity,
+              child: Row(
+                children: [
+                  Text(
+                    '画像を添付して下さい(任意)',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 20),
+                    child: ElevatedButton(
+                      child: Icon(Icons.image),
+                      onPressed: _getImage,
+                    ),
+                  ),
                 ],
-                decoration: InputDecoration(
-                    hintText: '購入日',
-                    labelText: '購入日',
-                    border: OutlineInputBorder()),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextField(
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'[0-9]')), //英小文字のみ許可
+            _image != '' ? Text('No image selected.') : Image.file(_image),
+            Container(
+              margin: EdgeInsets.only(top: 30),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  ElevatedButton(
+                    child: Text('戻る'),
+                    onPressed: () {
+                      //一覧画面に戻る
+                    },
+                  ),
+                  ElevatedButton(
+                    child: Text('登録'),
+                    onPressed: () {
+                      //データベースに情報を登録
+                    },
+                  ),
                 ],
-                decoration: InputDecoration(
-                    hintText: '消費期限',
-                    border: OutlineInputBorder(),
-                    labelText: '消費期限'),
               ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            Padding(
-              padding: EdgeInsets.all(10),
-              child: TextFormField(
-                autofocus: true,
-                decoration: InputDecoration(
-                  hintText: 'その他メモ',
-                  labelText: 'その他',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            SizedBox(
-              height: 5,
-            ),
-            ButtonBar(
-              alignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('戻る'),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  child: Text('編集'),
-                ),
-              ],
             ),
           ],
         ),
       ),
     );
   }
-
-  void setState(Null Function() param0) {}
 }
