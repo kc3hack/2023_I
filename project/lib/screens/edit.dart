@@ -4,7 +4,7 @@ import 'package:project/db/database.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:project/main.dart';
-//import 'package:project/screens/caatalog.dart';
+import 'package:project/screens/catalog.dart';
 
 void main() {
   runApp(const MyApp());
@@ -42,12 +42,9 @@ class _EditPageState extends State<EditPage> {
   late String consumeDate; //消費期限を取得
   late String memo; //メモ内容を取得
 
-  ///データベースに登録内容を追加
-  void _insert() async {
-    // row to insert
-    //const List<String> cat = ['肉.豚', '肉.牛', '魚', '野菜', '果物'];
+  void _update() async {
     Map<String, dynamic> row = {
-      //DatabaseHelper.columnCategory: cat[Random().nextInt(5)],
+      DatabaseHelper.columnId: 1, //更新するデータのID
       DatabaseHelper.columnCategory: category,
       DatabaseHelper.columnName: name,
       DatabaseHelper.columnPurchase: purchaseDate,
@@ -55,8 +52,13 @@ class _EditPageState extends State<EditPage> {
       DatabaseHelper.columnPhotoPath: _image,
       DatabaseHelper.columnMemo: memo,
     };
-    final id = await dbHelper.insert(row);
-    print(id);
+    final rowsAffected = await dbHelper.update(row);
+    print(rowsAffected);
+  }
+
+  void _delete() async {
+    final id = await dbHelper.queryRowCount();
+    final rowsDeleted = await dbHelper.delete(id!); //削除するデータのID
   }
 
   ///ギャラリーから画像を取得
@@ -271,10 +273,10 @@ class _EditPageState extends State<EditPage> {
                     ),
                     //登録ボタンの設定
                     ElevatedButton(
-                      child: Text('登録'),
+                      child: Text('更新'),
                       onPressed: () {
                         //データベースに情報を登録し、一覧画面に戻る
-                        _insert();
+                        _update();
                         Navigator.pop(context);
                       },
                     ),
