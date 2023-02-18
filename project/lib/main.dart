@@ -53,18 +53,19 @@ class _CatalogPageState extends State<CatalogPage> {
           List<Widget> expansionTiles =
               itemsByCategory.keys.toList().map((categoryName) {
             return ExpansionTile(
-              title: Text(categoryName),
+              title: Text(
+                categoryName,
+                style: const TextStyle(
+                  fontSize: 18,
+                ),
+              ),
               children: itemsByCategory[categoryName]!.map((itemName) {
                 return GestureDetector(
                   onTap: () {
-                    // 詳細画面に遷移？ （未実装）
-
-                    // testcode
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (context) => AlertDialog(
-                    //     content: Text('test'),
-                    //   ),
+                    // 修正画面に遷移 （未実装）
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => hoge),
                     // );
                   },
                   child: ListTile(
