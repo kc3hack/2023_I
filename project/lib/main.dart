@@ -74,29 +74,38 @@ class _CatalogPageState extends State<CatalogPage> {
                 }
 
                 // 期限のフォーマット: xxxxxxxx -> yyyy/MM/dd
-                String limit = outputFormat
-                    .format(DateTime.parse(limitDate[limitDateIndex]));
-                var limitDt = DateTime.parse(limit);
-                var dateDt = DateTime.parse(date); // 今日の日付
+                String limit;
+                try {
+                  limit = outputFormat
+                      .format(DateTime.parse(limitDate[limitDateIndex]));
+                  var limitDt = DateTime.parse(limit);
+                  var dateDt = DateTime.parse(date); // 今日の日付
 
-                // 期限間近の判定
-                if (dateDt.isAfter(limitDt)) {
-                  // 期限切れの場合
-                  r = 220;
-                  g = 20;
-                  b = 60;
-                  opacity = 100;
-                } else if (dateDt.difference(limitDt).inDays >= -4) {
-                  // 期限まであと4日
-                  r = 210;
-                  g = 105;
-                  b = 30;
-                  opacity = 100;
-                } else {
+                  // 期限間近の判定
+                  if (dateDt.isAfter(limitDt)) {
+                    // 期限切れの場合
+                    r = 220;
+                    g = 20;
+                    b = 60;
+                    opacity = 100;
+                  } else if (dateDt.difference(limitDt).inDays >= -4) {
+                    // 期限まであと4日
+                    r = 210;
+                    g = 105;
+                    b = 30;
+                    opacity = 100;
+                  } else {
+                    r = 0;
+                    g = 0;
+                    b = 0;
+                    opacity = 100;
+                  }
+                } catch (e) {
+                  limit = limitDate[limitDateIndex];
                   r = 0;
                   g = 0;
                   b = 0;
-                  opacity = 100;
+                  opacity = 0;
                 }
 
                 return GestureDetector(
