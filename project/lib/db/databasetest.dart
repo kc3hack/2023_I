@@ -87,7 +87,7 @@ class MyHomePage extends StatelessWidget {
 
   // 照会ボタンクリック
   void _query() async {
-    final allRows = await dbHelper.getCategory();//登録されているカテゴリ一覧を取得
+    final allRows = await dbHelper.getCategory(); //登録されているカテゴリ一覧を取得
     //final allRows = await dbHelper.where('categoly LIKE \'肉.豚\'');//カテゴリが肉.豚の物を取得
     //final allRows = await dbHelper.where('categoly LIKE \'肉.%\'');//カテゴリが肉の物を取得
     //final allRows = await dbHelper.where('_id = 3');//ID=3を取得

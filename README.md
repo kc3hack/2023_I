@@ -6,7 +6,7 @@
 
 <!-- チームIDとチーム名を入力 -->
 
-チーム○_XXXX
+チームI_インテグラル
 
 
 ## プロダクト名
@@ -22,7 +22,10 @@
 ## 使用技術
 
 <!-- 使用技術を入力 -->
-
+- Flutter
+- SQLite
+- VSCode Dev Containers (Docker)
+- Figma
 
 
 <!--

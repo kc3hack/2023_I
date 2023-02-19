@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import 'package:project/catalogRegistry/catalogRegistry.dart';
 
 final logger = Logger();
@@ -29,9 +30,18 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   // DatabaseHelper クラスのインスタンス取得
   final dbHelper = DatabaseHelper.instance;
+  var limitDateIndex; // limitDateのインデックス
+
+  DateTime now = DateTime.now();
+  late String limitColor;
 
   @override
   Widget build(BuildContext context) {
+    DateFormat outputFormat = DateFormat('yyyy-MM-dd');
+    String date = outputFormat.format(now); // 今日の日付
+    int r, g, b;
+    double opacity;
+
     return FutureBuilder<List<Map<String, dynamic>>>(
       future: dbHelper.select('category, name, limit_date'),
       builder: (context, snapshot) {
@@ -50,8 +60,45 @@ class _CatalogPageState extends State<CatalogPage> {
           List<Widget> expansionTiles =
               itemsByCategory.keys.toList().map((categoryName) {
             return ExpansionTile(
-              title: Text(categoryName),
+              collapsedBackgroundColor: Color.fromRGBO(220, 220, 220, 100),
+              title: Text(
+                categoryName,
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
               children: itemsByCategory[categoryName]!.map((itemName) {
+                // リストのインデックスを割り当てる
+                if (limitDateIndex == null) {
+                  limitDateIndex = 0;
+                } else {
+                  limitDateIndex++;
+                }
+
+                // 期限のフォーマット: xxxxxxxx -> yyyy/MM/dd
+                String limit = outputFormat
+                    .format(DateTime.parse(limitDate[limitDateIndex]));
+                var limitDt = DateTime.parse(limit);
+                var dateDt = DateTime.parse(date); // 今日の日付
+
+                // 期限間近の判定
+                if (dateDt.isAfter(limitDt)) {
+                  // 期限切れの場合
+                  r = 220;
+                  g = 20;
+                  b = 60;
+                  opacity = 100;
+                } else if (dateDt.difference(limitDt).inDays >= -4) {
+                  // 期限まであと4日
+                  r = 210;
+                  g = 105;
+                  b = 30;
+                  opacity = 100;
+                } else {
+                  r = 0;
+                  g = 0;
+                  b = 0;
+                  opacity = 100;
+                }
+
                 return GestureDetector(
                   onTap: () {
                     // 詳細画面に遷移？ （未実装）
@@ -65,7 +112,12 @@ class _CatalogPageState extends State<CatalogPage> {
                     // );
                   },
                   child: ListTile(
-                    title: Text(itemName),
+                    isThreeLine: true,
+                    title: Text(
+                      '\t$itemName',
+                      style: TextStyle(color: Color.fromRGBO(r, g, b, opacity)),
+                    ),
+                    subtitle: Text('\t期限：$limit'),
                   ),
                 );
               }).toList(),
