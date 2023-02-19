@@ -35,8 +35,6 @@ class _CatalogPageState extends State<CatalogPage> {
   DateTime now = DateTime.now();
   late String limitColor;
 
-  get danger => null; // 期限の警告表示色
-
   @override
   Widget build(BuildContext context) {
     DateFormat outputFormat = DateFormat('yyyy-MM-dd');
