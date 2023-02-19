@@ -98,7 +98,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     opacity = 100;
                   }
                 } catch (e) {
-                  limit = ${itemName[1]};
+                  limit = itemName[1];
                   r = 0;
                   g = 0;
                   b = 0;
