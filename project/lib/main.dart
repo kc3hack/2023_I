@@ -7,6 +7,7 @@ import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:project/catalogRegistry/catalogRegistry.dart';
+import 'package:project/edit/edit.dart';
 
 final logger = Logger();
 
@@ -70,7 +71,6 @@ class _CatalogPageState extends State<CatalogPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               children: itemsByCategory[categoryName]!.map((itemName) {
-
                 // 期限のフォーマット: xxxxxxxx -> yyyy/MM/dd
                 String limit;
                 try {
@@ -106,11 +106,11 @@ class _CatalogPageState extends State<CatalogPage> {
                 }
                 return GestureDetector(
                   onTap: () {
-                    // 修正画面に遷移 （未実装）
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(builder: (context) => hoge),
-                    // );
+                    //修正画面に遷移 （未実装）
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => EditPage(id: 1)),
+                    );
                   },
                   child: ListTile(
                     isThreeLine: true,
