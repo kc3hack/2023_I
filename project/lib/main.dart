@@ -30,7 +30,6 @@ class CatalogPage extends StatefulWidget {
 class _CatalogPageState extends State<CatalogPage> {
   // DatabaseHelper クラスのインスタンス取得
   final dbHelper = DatabaseHelper.instance;
-  var limitDateIndex; // limitDateのインデックス
 
   DateTime now = DateTime.now();
   late String limitColor;
@@ -48,13 +47,18 @@ class _CatalogPageState extends State<CatalogPage> {
         if (snapshot.hasData) {
           final catalog = snapshot.data!; // category, name, limit_dateの全データ
           List<String> limitDate = [];
-          Map<String, List<String>> itemsByCategory =
+          Map<String, List<List<String>>> itemsByCategory =
               {}; // key: メインカテゴリ, value: 商品名
 
           for (var map in catalog) {
-            limitDate.add(map['limit_date']);
-            itemsByCategory[map['category']] ??= []; // Listの初期化
-            itemsByCategory[map['category']]!.add(map['name']);
+            List<String> itemlimit = [];
+            String category = map['category'];
+            String name = map['name'];
+            String date = map['limit_date'];
+            itemlimit.add(name);
+            itemlimit.add(date);
+            itemsByCategory[category] ??= [];
+            itemsByCategory[category]!.add(itemlimit);
           }
 
           List<Widget> expansionTiles =
@@ -66,18 +70,11 @@ class _CatalogPageState extends State<CatalogPage> {
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               children: itemsByCategory[categoryName]!.map((itemName) {
-                // リストのインデックスを割り当てる
-                if (limitDateIndex == null) {
-                  limitDateIndex = 0;
-                } else {
-                  limitDateIndex++;
-                }
 
                 // 期限のフォーマット: xxxxxxxx -> yyyy/MM/dd
                 String limit;
                 try {
-                  limit = outputFormat
-                      .format(DateTime.parse(limitDate[limitDateIndex]));
+                  limit = outputFormat.format(DateTime.parse(itemName[1]));
                   var limitDt = DateTime.parse(limit);
                   var dateDt = DateTime.parse(date); // 今日の日付
 
@@ -101,29 +98,24 @@ class _CatalogPageState extends State<CatalogPage> {
                     opacity = 100;
                   }
                 } catch (e) {
-                  limit = limitDate[limitDateIndex];
+                  limit = ${itemName[1]};
                   r = 0;
                   g = 0;
                   b = 0;
-                  opacity = 0;
+                  opacity = 100;
                 }
-
                 return GestureDetector(
                   onTap: () {
-                    // 詳細画面に遷移？ （未実装）
-
-                    // testcode
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (context) => AlertDialog(
-                    //     content: Text('test'),
-                    //   ),
+                    // 修正画面に遷移 （未実装）
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => hoge),
                     // );
                   },
                   child: ListTile(
                     isThreeLine: true,
                     title: Text(
-                      '\t$itemName',
+                      itemName[0],
                       style: TextStyle(color: Color.fromRGBO(r, g, b, opacity)),
                     ),
                     subtitle: Text('\t期限：$limit'),
