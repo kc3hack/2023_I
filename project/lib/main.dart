@@ -1,12 +1,11 @@
 import 'dart:math';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:project/db/database.dart';
 import 'package:logger/logger.dart';
 //import 'package:provider/provider.dart';
 //import 'package:project/screens/registry.dart';
-import 'package:project/screens/edit.dart';
+import 'package:project/Edit/Edit.dart';
 
 final logger = Logger();
 
