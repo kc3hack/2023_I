@@ -43,7 +43,7 @@ class _MyHomePageState extends State<CatalogCreate> {
   late String name; //商品名を取得
   late String purchaseDate; //購入日を取得
   late String consumeDate; //消費期限を取得
-  late String memo; //メモ内容を取得
+  String memo = ''; //メモ内容を取得
 
   ///データベースに登録内容を追加
   void _insert() async {
